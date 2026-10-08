@@ -1095,6 +1095,7 @@ Deps: T1003 · Migration: —
 
 - Same per-path authorization as `workspace.apply_changeset` (a scoped agent can't submit outside scope). Binary files round-trip byte-exact.
 - Symlinks: one identical to the base's is unchanged. An added symlink, a changed target, or a type change between symlink and file is refused (`VALIDATION`, reason `symlink_not_supported`, naming the path); it is never converted into a regular file and never followed. Deleting a base symlink is allowed. New files are `100644` and a modify keeps the base mode, so a `chmod` in the sandbox is not carried.
+- `paths` are exact normalized file paths or directory prefixes with a trailing `/`; no globs. An entry that matches no changed path is `VALIDATION` (`path_not_changed`). An empty diff (overall or after the filter) is `VALIDATION` (`no_changes`, not retryable): no ChangeSet, revision or event. Every path still needs its own write authorization.
 - Nothing submitted trusts the working copy's Git state: ignore rules come from the canonical base (not the working tree's `.gitignore`/`.roomignore`), file bytes are read directly (never through Git filters or the sandbox's `.git/config`), and the server validates every path again.
 
 ### T1006 · `sandbox.exec` and output — S2
