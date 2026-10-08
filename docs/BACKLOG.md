@@ -1093,7 +1093,9 @@ Deps: T1003 · Migration: —
 
 `changes.submit { paths?, message, task_id? }` diffs `base_revision` against the working tree (tracked plus new non-ignored files, optional path filter), packages a ChangeSet with `source = SANDBOX`, and runs the apply pipeline (§10). APPLIED → the base fast-forwards. CONFLICT → the Conflict is returned (§14.5).
 
-- Same per-path authorization as `workspace.apply_changeset` (a scoped agent can't submit outside scope). Binary and symlink files round-trip.
+- Same per-path authorization as `workspace.apply_changeset` (a scoped agent can't submit outside scope). Binary files round-trip byte-exact.
+- Symlinks: one identical to the base's is unchanged. An added symlink, a changed target, or a type change between symlink and file is refused (`VALIDATION`, reason `symlink_not_supported`, naming the path); it is never converted into a regular file and never followed. Deleting a base symlink is allowed. New files are `100644` and a modify keeps the base mode, so a `chmod` in the sandbox is not carried.
+- Nothing submitted trusts the working copy's Git state: ignore rules come from the canonical base (not the working tree's `.gitignore`/`.roomignore`), file bytes are read directly (never through Git filters or the sandbox's `.git/config`), and the server validates every path again.
 
 ### T1006 · `sandbox.exec` and output — S2
 
